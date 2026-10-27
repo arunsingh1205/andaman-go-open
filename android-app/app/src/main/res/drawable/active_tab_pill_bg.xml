@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The soft pill behind the current tab — matches
+     :root[data-native] .glass-nav-active in app/globals.css
+     (color-mix, 10 percent of the color-brand custom property, against
+     transparent — its usual CSS prefix is left off here since XML
+     comments reject two consecutive hyphen characters anywhere in their
+     body, not just at the delimiters). -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="@color/brand_10pct" />
+    <corners android:radius="22dp" />
+</shape>

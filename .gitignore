@@ -1,0 +1,104 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/node_modules
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# testing
+/coverage
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# misc
+.DS_Store
+*.pem
+
+# secrets — OAuth client downloads, service-account keys. These belong in the
+# Supabase dashboard / deployment env, never in the repo.
+client_secret*.json
+*-service-account*.json
+gcp-*.json
+
+# Android release signing — losing the keystore means never being able to
+# update the Play Store listing under the same app again, but that's exactly
+# why it must never be committed either. Each native app (partner, customer)
+# has its own keystore/google-services.json — a signing key and an FCM app
+# are both scoped to one Play Store listing, never shared.
+*.jks
+*.keystore
+android/app/keystore.properties
+android/app/google-services.json
+android-app/app/keystore.properties
+android-app/app/google-services.json
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# env files (can opt-in for committing if needed)
+.env*
+!.env.example
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+# local Claude Code tooling (not app code)
+.claude/
+.agents/
+
+# local editor config (machine-specific, e.g. JDK memory flags) — same
+# reasoning as android/.idea/workspace.xml being excluded
+.vscode/
+
+# supabase cli scratch
+supabase/.temp/
+
+# files Claude moved aside instead of deleting (device_bash cannot rm) — safe to delete
+_to_delete/
+
+# Stale nested duplicate of the whole repo. Untracked, but next build
+# type-checks it and fails on ~30 errors from code that no longer exists
+# (@/lib/stays, getBookingDays, StayIcon). Safe to delete outright.
+Andaman-Go/
+_to_delete2/
+Claude outputs/
+
+# Generated scratch output (PDFs) and marketing drafts/assets — not app code.
+/tmp/
+/output/
+/marketing/
+
+# Android Studio's per-machine project config for the customer app's native
+# project. Machine-specific (local SDK paths, window layout, caches), and the
+# partner app's android/ equivalent was never tracked either.
+android-app/.idea/
+
+# Public half of the RSA key Codemagic uses to mint the iOS distribution
+# certificate (CERTIFICATE_PRIVATE_KEY). The private .pem is covered by
+# *.pem above; neither belongs in the repo.
+*.pem.pub
+
+# Native Capacitor plugins (capacitor-plugins/*/android) live in this repo
+# rather than node_modules — same reasoning as razorpay-native's own header
+# comment — but their Gradle build output doesn't belong in it any more than
+# android-app/'s own build/ does (already covered by android-app/.gitignore,
+# which only applies within its own tree).
+capacitor-plugins/*/android/build/
+capacitor-plugins/*/android/.gradle/

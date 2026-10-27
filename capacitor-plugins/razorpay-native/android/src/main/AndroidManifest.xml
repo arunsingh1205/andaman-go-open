@@ -1,0 +1,25 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Android 11+ (API 30+) hides installed-app info from other apps by
+         default — without this, Razorpay's checkout can't tell whether a
+         UPI app is installed and won't offer its Intent flow at all, the
+         Android-side reason UPI wasn't completing (checkout.js in a WebView
+         has the same underlying problem for a different reason — see
+         RazorpayNativePlugin.java's own header comment). Google Pay +
+         PhonePe package names and the SEND intent query are the exact block
+         from Razorpay's own current "Additional Support for Payment
+         Methods" docs; Paytm and BHIM added alongside since they're the
+         other two UPI apps Razorpay's own dashboard commonly surfaces.
+         Gradle's manifest merger folds this into the host app's own
+         manifest automatically — nothing to hand-edit in android-app/. -->
+    <queries>
+        <package android:name="com.google.android.apps.nbu.paisa.user" /> <!-- Google Pay -->
+        <package android:name="com.phonepe.app" /> <!-- PhonePe -->
+        <package android:name="net.one97.paytm" /> <!-- Paytm -->
+        <package android:name="in.org.npci.upiapp" /> <!-- BHIM -->
+        <intent>
+            <action android:name="android.intent.action.SEND" />
+        </intent>
+    </queries>
+
+</manifest>

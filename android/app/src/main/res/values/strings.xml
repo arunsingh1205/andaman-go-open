@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Andaman GO Partner</string>
+    <string name="title_activity_main">Andaman GO Partner</string>
+    <string name="package_name">com.andamango.partner</string>
+    <string name="custom_url_scheme">com.andamango.partner</string>
+</resources>

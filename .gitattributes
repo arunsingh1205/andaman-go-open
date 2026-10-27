@@ -1,0 +1,6 @@
+# Normalize everything to LF in the repo — this project is edited from a
+# Windows machine (via Dropbox), and a stray CRLF save has twice shown up as
+# a spurious full-file diff on an already-shipped migration. Git still
+# checks files out with the OS's native line endings by default; this only
+# controls what's stored.
+* text=auto eol=lf

@@ -1,0 +1,24 @@
+{
+  "name": "razorpay-native",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Razorpay's own native iOS/Android checkout as a Capacitor plugin, so the app opens the native payment sheet (and hands off to Google Pay / PhonePe / Paytm) instead of an in-WebView iframe that can only ask for a typed UPI ID.",
+  "license": "UNLICENSED",
+  "files": [
+    "ios/Sources",
+    "Package.swift",
+    "android/src/main",
+    "android/build.gradle"
+  ],
+  "capacitor": {
+    "ios": {
+      "src": "ios"
+    },
+    "android": {
+      "src": "android"
+    }
+  },
+  "peerDependencies": {
+    "@capacitor/core": ">=8.0.0"
+  }
+}

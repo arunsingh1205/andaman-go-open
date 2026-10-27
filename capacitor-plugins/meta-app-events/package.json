@@ -1,0 +1,24 @@
+{
+  "name": "meta-app-events",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Meta (Facebook) App Events SDK as a Capacitor plugin, so the traveller app reports installs, opens and bookings to Meta as app events — what app-install ads need to credit an install and a booking to the ad that caused them.",
+  "license": "UNLICENSED",
+  "files": [
+    "ios/Sources",
+    "Package.swift",
+    "android/src/main",
+    "android/build.gradle"
+  ],
+  "capacitor": {
+    "ios": {
+      "src": "ios"
+    },
+    "android": {
+      "src": "android"
+    }
+  },
+  "peerDependencies": {
+    "@capacitor/core": ">=8.0.0"
+  }
+}

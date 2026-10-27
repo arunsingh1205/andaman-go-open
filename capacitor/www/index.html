@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Andaman GO</title>
+  <!--
+    The offline screen, and the only page in this app that is actually bundled
+    into the build.
+
+    capacitor.config.ts points server.url at the live Next.js site, so the
+    WebView is normally a browser tab on https://www.andamango.in and nothing
+    here is ever seen. When that server can't be reached — no signal at a
+    jetty, which is exactly when someone needs their ticket — Capacitor falls
+    back to this file instead of a blank white screen.
+
+    It reads the snapshot app/bookings/offline-tickets.tsx writes into native
+    storage via @capacitor/preferences, and redraws the tickets from it. The
+    QR codes were encoded on the server (lib/qr.ts) and stored as SVG path
+    strings, so there is no encoder to ship here — just a <path>.
+
+    Shared by both apps. The partner app never writes that key, so it falls
+    through to the plain "can't reach the server" message below.
+  -->
+  <style>
+    :root {
+      --brand: #0C434C;
+      --ink: #0B2422;
+      --paper: #FFFFFF;
+      --muted: #7FA3A5;
+      --line: rgba(255, 255, 255, 0.14);
+    }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      background: var(--brand);
+      color: #E4F0EE;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    body {
+      padding: max(28px, env(safe-area-inset-top)) 16px max(28px, env(safe-area-inset-bottom));
+    }
+    .wrap { max-width: 460px; margin: 0 auto; }
+    .banner {
+      display: flex; gap: 10px; align-items: flex-start;
+      border: 1px solid var(--line); border-radius: 16px;
+      padding: 14px; margin-bottom: 20px;
+    }
+    .dot {
+      width: 8px; height: 8px; border-radius: 99px; background: #E0A458;
+      flex: 0 0 auto; margin-top: 6px;
+    }
+    h1 { font-size: 17px; margin: 0 0 3px; letter-spacing: -0.01em; }
+    .sub { font-size: 12.5px; line-height: 1.5; color: var(--muted); margin: 0; }
+    .day { margin-bottom: 18px; }
+    .daytop { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
+    .daylabel { font-size: 13px; font-weight: 700; }
+    .dayref { font-size: 11px; color: var(--muted); font-variant-numeric: tabular-nums; }
+    .card {
+      background: var(--paper); color: var(--ink);
+      border-radius: 18px; padding: 16px; margin-bottom: 10px;
+      display: flex; gap: 14px; align-items: center;
+    }
+    .qr { width: 104px; height: 104px; flex: 0 0 auto; }
+    .qr svg { width: 100%; height: 100%; display: block; shape-rendering: crispEdges; }
+    .meta { min-width: 0; }
+    .title { font-size: 14.5px; font-weight: 700; margin: 0 0 2px; }
+    .line { font-size: 12px; color: #55706E; margin: 0; line-height: 1.45; }
+    button {
+      width: 100%; height: 48px; margin-top: 8px;
+      border: 1px solid var(--line); border-radius: 14px;
+      background: transparent; color: #E4F0EE;
+      font-size: 14px; font-weight: 700; font-family: inherit;
+    }
+    button:active { opacity: 0.6; }
+    .saved { font-size: 11px; color: var(--muted); text-align: center; margin: 14px 0 0; }
+    .centre { min-height: 70vh; display: flex; flex-direction: column; justify-content: center; }
+  </style>
+</head>
+<body>
+  <div class="wrap" id="root">
+    <div class="centre">
+      <h1>No connection</h1>
+      <p class="sub">Checking for saved tickets…</p>
+    </div>
+  </div>
+
+<script>
+(function () {
+  var TICKETS_KEY = "andamango.offline-tickets";
+  var ORIGIN_KEY = "andamango.server-url";
+  var root = document.getElementById("root");
+
+  function esc(s) {
+    return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c];
+    });
+  }
+
+  function prefs() {
+    var C = window.Capacitor;
+    return (C && C.Plugins && C.Plugins.Preferences) || null;
+  }
+
+  function get(key) {
+    var p = prefs();
+    if (!p) return Promise.resolve(null);
+    return p.get({ key: key }).then(function (r) { return r && r.value; }).catch(function () { return null; });
+  }
+
+  // This page is shown (server.errorPath) when the live site fails to load,
+  // which means nothing on the live site ever ran to take the native splash
+  // down. Do it here, through every channel the two apps listen on: the
+  // plugin's own splash, PartnerRootViewController's overlay ("splashHide"),
+  // and AppRootViewController's overlay, which drops on its first
+  // "nativeChrome" message. Each is a no-op where it doesn't exist.
+  function hideNativeSplash() {
+    var C = window.Capacitor;
+    var splash = C && C.Plugins && C.Plugins.SplashScreen;
+    if (splash) splash.hide().catch(function () {});
+    var h = window.webkit && window.webkit.messageHandlers;
+    if (h && h.splashHide) h.splashHide.postMessage({});
+    if (h && h.nativeChrome) h.nativeChrome.postMessage({ tabBar: false, back: false, path: "" });
+  }
+
+  // Where "Try again" goes when no live page has ever saved its origin —
+  // e.g. the very first launch on a fresh install. Reloading this bundled
+  // file would only ever show this page again.
+  function fallbackOrigin() {
+    var C = window.Capacitor;
+    var app = C && C.Plugins && C.Plugins.App;
+    if (!app) return Promise.resolve(null);
+    return app.getInfo().then(function (info) {
+      return info && info.id === "com.andamango.partner"
+        ? "https://www.andamango.in/partner"
+        : "https://www.andamango.in/explore";
+    }).catch(function () { return null; });
+  }
+
+  function retryButton(origin) {
+    var b = document.createElement("button");
+    b.textContent = "Try again";
+    b.onclick = function () {
+      if (origin) window.location.href = origin;
+      else window.location.reload();
+    };
+    return b;
+  }
+
+  function plain(origin, note) {
+    root.innerHTML =
+      '<div class="centre">' +
+      "<h1>No connection</h1>" +
+      '<p class="sub">' + esc(note) + "</p>" +
+      "</div>";
+    root.querySelector(".centre").appendChild(retryButton(origin));
+  }
+
+  function render(snapshot, origin) {
+    var days = (snapshot && snapshot.days) || [];
+    if (!days.length) {
+      plain(origin, "You're offline and there are no saved tickets on this phone. Open Bookings once you have signal and they'll be kept here for next time.");
+      return;
+    }
+
+    var html =
+      '<div class="banner"><span class="dot"></span><div>' +
+      "<h1>You're offline</h1>" +
+      '<p class="sub">These tickets are saved on this phone. Show the code to your operator — it scans without a connection.</p>' +
+      "</div></div>";
+
+    days.forEach(function (d) {
+      html +=
+        '<div class="day"><div class="daytop">' +
+        '<span class="daylabel">' + esc(d.label) + " · " + esc(d.place) + "</span>" +
+        '<span class="dayref">' + esc(d.refCode) + "</span>" +
+        "</div>";
+
+      (d.items || []).forEach(function (it) {
+        var qr = it.qr || {};
+        html +=
+          '<div class="card">' +
+          '<div class="qr"><svg viewBox="0 0 ' + Number(qr.size || 0) + " " + Number(qr.size || 0) + '" xmlns="http://www.w3.org/2000/svg">' +
+          '<path d="' + esc(qr.path) + '" fill="#0B2422"/></svg></div>' +
+          '<div class="meta">' +
+          '<p class="title">' + esc(it.title) + "</p>" +
+          '<p class="line">' + esc(it.operator) + "</p>" +
+          '<p class="line">' + esc(it.timeLabel) + " · " + esc(it.detail) + "</p>" +
+          "</div></div>";
+      });
+
+      html += "</div>";
+    });
+
+    root.innerHTML = html;
+    root.appendChild(retryButton(origin));
+
+    if (snapshot.savedAt) {
+      var p = document.createElement("p");
+      p.className = "saved";
+      p.textContent = "Saved " + new Date(snapshot.savedAt).toLocaleString();
+      root.appendChild(p);
+    }
+  }
+
+  function start() {
+    hideNativeSplash();
+    Promise.all([get(TICKETS_KEY), get(ORIGIN_KEY), fallbackOrigin()]).then(function (vals) {
+      var raw = vals[0];
+      var origin = vals[1] || vals[2];
+      if (!raw) {
+        plain(origin, "Couldn't reach Andaman GO, and there are no saved tickets on this phone yet.");
+        return;
+      }
+      try {
+        render(JSON.parse(raw), origin);
+      } catch (e) {
+        plain(origin, "Couldn't reach Andaman GO.");
+      }
+    });
+  }
+
+  // The native bridge injects window.Capacitor before this runs in the app,
+  // but give it a beat in case it doesn't — and degrade gracefully in a
+  // plain browser, where there is no bridge at all.
+  if (prefs()) start();
+  else setTimeout(function () {
+    if (prefs()) start();
+    else { hideNativeSplash(); plain(null, "Couldn't reach Andaman GO."); }
+  }, 400);
+})();
+</script>
+</body>
+</html>

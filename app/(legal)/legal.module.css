@@ -1,0 +1,276 @@
+/* ===========================================================================
+   The policy pages: /terms, /privacy, /refunds, /shipping, /contact.
+
+   Two rules govern everything here.
+
+   1. These pages must stay readable with CSS switched off. A payments
+      reviewer sometimes reads them stripped down, and a screen reader always
+      does. So the markup is plain h1/h2/h3/p/ul/dl in reading order, nothing
+      is conveyed by colour alone, and no rule below changes the order or the
+      meaning of anything — only its spacing and its ink.
+
+   2. They are isolated from the marketing page. Their own stylesheet, their
+      own layout, no shared classes with home.module.css. Visual work on the
+      homepage cannot reach them and cannot break them.
+   ======================================================================== */
+
+.page {
+  background: var(--color-surface);
+  color: var(--color-ink);
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+.wrap {
+  width: min(760px, 100% - clamp(32px, 8vw, 96px));
+  margin-inline: auto;
+}
+
+/* --- plain header: the mark, and a way back. No nav, no CTA. --- */
+
+.header {
+  border-bottom: 1px solid var(--color-line);
+  padding-top: var(--safe-top);
+}
+
+.headerInner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding-block: 20px;
+}
+
+.logoSlot {
+  width: 150px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+}
+
+.logo {
+  width: 100%;
+  height: auto;
+}
+
+.back {
+  font-size: 13.5px;
+  color: var(--color-muted);
+  text-decoration: none;
+}
+
+.back:hover {
+  color: var(--color-ink);
+  text-decoration: underline;
+}
+
+/* --- document --- */
+
+.doc {
+  flex: 1;
+  padding-block: clamp(36px, 6vh, 60px) clamp(48px, 8vh, 80px);
+}
+
+.kicker {
+  font-size: 13px;
+  color: var(--color-muted);
+}
+
+.h1 {
+  margin: 10px 0 0;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(30px, 4.4vw, 40px);
+  line-height: 1.08;
+  letter-spacing: -0.028em;
+  text-wrap: balance;
+}
+
+.updated {
+  margin: 12px 0 0;
+  font-size: 14px;
+  color: var(--color-muted);
+}
+
+/* The one-paragraph summary at the top of each policy. A left rule rather
+   than a tinted panel, so with styles off it is simply the first paragraph. */
+.summary {
+  margin: clamp(26px, 4vh, 34px) 0 0;
+  padding: 18px 0 18px 22px;
+  border-left: 3px solid var(--color-brand);
+  font-size: 15.5px;
+  line-height: 1.72;
+}
+
+.doc h2 {
+  margin: clamp(32px, 5vh, 42px) 0 0;
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: clamp(21px, 2.4vw, 24px);
+  line-height: 1.16;
+  letter-spacing: -0.02em;
+}
+
+.doc h3 {
+  margin: 24px 0 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.doc p {
+  margin: 14px 0 0;
+  max-width: 68ch;
+  font-size: 15.5px;
+  line-height: 1.75;
+}
+
+.doc ul {
+  margin: 14px 0 0;
+  padding-left: 22px;
+  max-width: 68ch;
+}
+
+.doc li {
+  margin-top: 8px;
+  font-size: 15.5px;
+  line-height: 1.75;
+}
+
+.doc a {
+  color: var(--color-sandink);
+}
+
+/* A definition list is the honest element for "this case → this outcome".
+   With styles off it still reads as term and definition. */
+.rules {
+  margin: 22px 0 0;
+  border-top: 1px solid var(--color-line);
+}
+
+.rule {
+  display: grid;
+  grid-template-columns: 230px minmax(0, 1fr);
+  gap: 8px 24px;
+  padding-block: 16px;
+  border-bottom: 1px solid var(--color-hairline);
+}
+
+.ruleTerm {
+  margin: 0;
+  font-size: 14.5px;
+  font-weight: 600;
+}
+
+.ruleDef {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--color-muted);
+}
+
+/* Weather and the inside-24-hours rule. The heading says what it is, so the
+   colour is emphasis and never the message. */
+.caution .ruleTerm {
+  color: var(--color-warn);
+}
+
+@media (max-width: 720px) {
+  .rule {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+}
+
+.note {
+  margin: 22px 0 0;
+  padding: 18px 22px;
+  border: 1px solid var(--color-sandline);
+  border-radius: 10px;
+  background: var(--color-sandsoft);
+  max-width: 68ch;
+}
+
+.note p {
+  margin: 0;
+  color: var(--color-sandink);
+}
+
+.contactBlock {
+  margin: clamp(28px, 4vh, 38px) 0 0;
+  padding: 26px 28px;
+  background: var(--color-ground);
+  border: 1px solid var(--color-line);
+  border-radius: 12px;
+}
+
+.contactRows {
+  display: grid;
+  grid-template-columns: 150px minmax(0, 1fr);
+  gap: 14px 24px;
+  margin: 0;
+}
+
+.contactRows dt {
+  font-size: 14px;
+  color: var(--color-muted);
+}
+
+.contactRows dd {
+  margin: 0;
+  font-size: 15.5px;
+  line-height: 1.7;
+}
+
+.contactStrong {
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.address {
+  font-style: normal;
+}
+
+@media (max-width: 640px) {
+  .contactRows {
+    grid-template-columns: 1fr;
+    gap: 4px 0;
+  }
+  .contactRows dd {
+    margin-bottom: 12px;
+  }
+}
+
+.tail {
+  margin: clamp(36px, 5vh, 48px) 0 0;
+  padding-top: 24px;
+  border-top: 1px solid var(--color-line);
+  font-size: 14.5px;
+  line-height: 1.7;
+  color: var(--color-muted);
+}
+
+/* --- footer: the other policies, so a reviewer can walk all five --- */
+
+.footer {
+  border-top: 1px solid var(--color-line);
+  background: var(--color-ground);
+  padding-block: 28px calc(28px + var(--safe-bottom));
+}
+
+.footNav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 22px;
+}
+
+.footLink {
+  font-size: 14px;
+  color: var(--color-brand);
+}
+
+.footMeta {
+  margin: 16px 0 0;
+  font-size: 12.5px;
+  color: var(--color-muted);
+}

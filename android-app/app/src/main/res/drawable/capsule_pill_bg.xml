@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The tab bar's own capsule — corner radius matches the CSS .glass-nav's
+     border-radius: 28px exactly. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="@color/capsule_surface" />
+    <corners android:radius="28dp" />
+</shape>

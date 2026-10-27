@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Matches app/globals.css's color-brand / color-ink custom
+         properties and the .glass-nav capsule's own translucent white, so
+         the native tab bar reads as the same object as the web version it
+         replaces, just with real elevation instead of a CSS shadow.
+         (Their usual CSS prefix is left off here on purpose: XML comments
+         reject two consecutive hyphen characters anywhere in their body,
+         not just at the delimiters, and AAPT2 fails the whole resource
+         build on it.) -->
+    <color name="brand">#13434C</color>
+    <color name="brand_10pct">#1A13434C</color>
+    <color name="ink_55pct">#8C0B2422</color>
+    <color name="capsule_surface">#B8FFFFFF</color>
+</resources>

@@ -1,0 +1,498 @@
+/* Coming-soon page atmosphere. Everything here is decoration: the layers are
+   pointer-events:none and the whole file collapses to a flat dark ground under
+   prefers-reduced-motion, so the page still reads with motion switched off. */
+
+.stage {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  min-height: 100dvh;
+  flex-direction: column;
+  overflow: hidden;
+  background: linear-gradient(180deg, #072421 0%, #041816 46%, #010a09 100%);
+  color: #f2f6f5;
+}
+
+.layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* Light from the surface, breathing. Inset past the edges so the scale()
+   never pulls the gradient's falloff into view. */
+.surface {
+  inset: -10%;
+  background: radial-gradient(
+    105% 62% at 50% 0%,
+    rgba(36, 146, 133, 0.6) 0%,
+    rgba(13, 84, 78, 0.26) 38%,
+    rgba(0, 0, 0, 0) 72%
+  );
+  animation: breathe 11s ease-in-out infinite;
+}
+
+/* God rays. Positioned in vw so they stay in proportion on a phone. */
+.beam {
+  position: absolute;
+  top: -12vh;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(150, 232, 216, 0.28) 0%, rgba(150, 232, 216, 0) 78%);
+  animation: beam 13s ease-in-out infinite;
+}
+
+.beamA {
+  left: 16vw;
+  width: 11vw;
+  min-width: 64px;
+  height: 88vh;
+  filter: blur(26px);
+}
+
+.beamB {
+  left: 58vw;
+  width: 15vw;
+  min-width: 88px;
+  height: 78vh;
+  filter: blur(32px);
+  animation-duration: 17s;
+  animation-delay: 2.5s;
+}
+
+/* Warmth off the seabed, swaying. */
+.seabed {
+  background: radial-gradient(
+    80% 42% at 50% 114%,
+    rgba(217, 160, 91, 0.18) 0%,
+    rgba(217, 160, 91, 0.04) 45%,
+    rgba(0, 0, 0, 0) 74%
+  );
+  animation: sway 19s ease-in-out infinite;
+}
+
+/* Depth contours: two layers drifting against each other so the water never
+   repeats on an obvious beat. */
+.contours {
+  position: absolute;
+  left: -6%;
+  bottom: -10px;
+  width: 112%;
+  height: min(420px, 46vh);
+  pointer-events: none;
+  opacity: 0.55;
+  animation: driftA 30s linear infinite alternate;
+}
+
+.contoursB {
+  bottom: 30px;
+  opacity: 0.4;
+  animation: driftB 44s linear infinite alternate;
+}
+
+.sonar {
+  stroke-dasharray: 6 22;
+  animation: dashline 26s linear infinite;
+}
+
+.hairline {
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 1px;
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    rgba(63, 163, 150, 0) 0%,
+    rgba(120, 214, 200, 0.5) 50%,
+    rgba(63, 163, 150, 0) 100%
+  );
+}
+
+.grain {
+  mix-blend-mode: overlay;
+  opacity: 0.09;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Plankton. Each speck gets its own left/size/duration/delay inline. */
+.particle {
+  position: absolute;
+  bottom: 0;
+  border-radius: 999px;
+  background: #9fe9da;
+  pointer-events: none;
+  animation-name: floatUp;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+/* ---- content ---- */
+
+.content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(20px, 4vh, 48px) 24px;
+  text-align: center;
+}
+
+.reveal {
+  animation: rise 1.15s cubic-bezier(0.16, 0.84, 0.44, 1) both;
+}
+
+.d1 { animation-delay: 0.05s; }
+.d2 { animation-delay: 0.14s; }
+.d3 { animation-delay: 0.22s; }
+.d4 { animation-delay: 0.32s; }
+.d5 { animation-delay: 0.42s; }
+.d6 { animation-delay: 0.5s; }
+.d7 { animation-delay: 0.6s; }
+
+.eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 16px 8px 12px;
+  border: 1px solid rgba(242, 246, 245, 0.14);
+  border-radius: 999px;
+  background: rgba(242, 246, 245, 0.035);
+  backdrop-filter: blur(6px);
+  font-size: 11.5px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(242, 246, 245, 0.72);
+}
+
+.pip {
+  position: relative;
+  width: 6px;
+  height: 6px;
+  flex: none;
+}
+
+.dot,
+.ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+}
+
+.dot {
+  background: var(--color-sand);
+  box-shadow: 0 0 12px var(--color-sand);
+}
+
+.ring {
+  border: 1px solid var(--color-sand);
+  animation: ring 3.4s cubic-bezier(0.2, 0.6, 0.3, 1) infinite;
+}
+
+/* The logo lives here. Fixed box so nothing below it moves as the mark's
+   rendered size changes between breakpoints. */
+.logoSlot {
+  margin-top: clamp(24px, 4vh, 34px);
+  display: flex;
+  height: clamp(82px, 11vh, 104px);
+  width: clamp(226px, 62vw, 300px);
+  align-items: center;
+  justify-content: center;
+  border-radius: 14px;
+}
+
+/* The lockup is 7.1:1, so filling the slot's width leaves it comfortably
+   inside the slot's height — the box stays taller than the mark on purpose. */
+.logo {
+  width: 100%;
+  height: auto;
+}
+
+.headline {
+  margin: clamp(26px, 4vh, 40px) 0 0;
+  max-width: 1060px;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(33px, 6.1vw, 76px);
+  line-height: 1;
+  letter-spacing: -0.03em;
+  text-wrap: balance;
+  color: #f4f8f7;
+}
+
+.dim {
+  color: rgba(242, 246, 245, 0.46);
+}
+
+/* Slow light pass across the first line. */
+.shine {
+  background: linear-gradient(
+    100deg,
+    #f4f8f7 0%,
+    #f4f8f7 36%,
+    #e7cfa6 45%,
+    #fff6e6 50%,
+    #e7cfa6 55%,
+    #f4f8f7 64%,
+    #f4f8f7 100%
+  );
+  background-size: 300% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: shimmer 9s cubic-bezier(0.5, 0, 0.5, 1) 2s infinite;
+}
+
+.sub {
+  margin: clamp(16px, 2.4vh, 26px) 0 0;
+  max-width: 560px;
+  font-size: clamp(15px, 1.4vw, 17px);
+  line-height: 1.62;
+  color: rgba(242, 246, 245, 0.6);
+  text-wrap: pretty;
+}
+
+.formWrap {
+  margin-top: clamp(28px, 4.4vh, 42px);
+  width: 100%;
+  max-width: 460px;
+}
+
+.note {
+  margin: 16px 0 0;
+  font-size: 12.5px;
+  color: rgba(242, 246, 245, 0.34);
+}
+
+.rail {
+  position: relative;
+  z-index: 1;
+  flex: none;
+  padding-left: clamp(24px, 5vw, 72px);
+  padding-right: clamp(24px, 5vw, 72px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  font-size: clamp(10.5px, 1vw, 12px);
+  letter-spacing: 0.17em;
+  text-transform: uppercase;
+  color: rgba(242, 246, 245, 0.34);
+}
+
+.topRail {
+  padding-top: calc(30px + var(--safe-top));
+}
+
+.bottomRail {
+  padding-bottom: calc(30px + var(--safe-bottom));
+}
+
+.railSet {
+  display: flex;
+  align-items: center;
+  gap: clamp(16px, 2vw, 26px);
+}
+
+/* ---- form ---- */
+
+.form {
+  display: flex;
+  gap: 10px;
+}
+
+.field {
+  height: 56px;
+  flex: 1 1 auto;
+  min-width: 0;
+  border: 1px solid rgba(242, 246, 245, 0.16);
+  border-radius: 999px;
+  background: rgba(242, 246, 245, 0.05);
+  padding: 0 22px;
+  font-family: var(--font-body);
+  font-size: 15.5px;
+  color: #f2f6f5;
+  outline: none;
+  backdrop-filter: blur(8px);
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.field::placeholder {
+  color: rgba(242, 246, 245, 0.38);
+}
+
+.field:focus {
+  border-color: rgba(217, 160, 91, 0.55);
+  background: rgba(242, 246, 245, 0.08);
+}
+
+.submit {
+  position: relative;
+  height: 56px;
+  flex: none;
+  overflow: hidden;
+  border: none;
+  border-radius: 999px;
+  background: var(--color-sand);
+  padding: 0 30px;
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: #0b2422;
+  cursor: pointer;
+  box-shadow: 0 10px 34px rgba(217, 160, 91, 0.22);
+  transition: filter 0.2s ease, transform 0.2s ease;
+}
+
+.submit:hover:not(:disabled) {
+  filter: brightness(1.06);
+}
+
+.submit:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.submit:disabled {
+  opacity: 0.65;
+  cursor: default;
+}
+
+.sheen {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 46px;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.55) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  animation: sheen 5.5s cubic-bezier(0.4, 0, 0.2, 1) 2.4s infinite;
+  pointer-events: none;
+}
+
+.label {
+  position: relative;
+}
+
+.done {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 56px;
+  border: 1px solid rgba(217, 160, 91, 0.35);
+  border-radius: 999px;
+  background: rgba(217, 160, 91, 0.1);
+  padding: 14px 24px;
+  font-size: 14.5px;
+  font-weight: 600;
+  color: #f0d7b0;
+  animation: rise 0.7s cubic-bezier(0.16, 0.84, 0.44, 1) both;
+}
+
+.error {
+  margin: 12px 0 0;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: #f0a878;
+}
+
+@media (max-width: 520px) {
+  .form {
+    flex-direction: column;
+  }
+
+  .submit {
+    padding: 0 24px;
+  }
+
+  .rail {
+    justify-content: center;
+  }
+
+  .railEnd {
+    display: none;
+  }
+}
+
+/* ---- motion ---- */
+
+@keyframes rise {
+  from { opacity: 0; transform: translateY(22px); filter: blur(6px); }
+  to { opacity: 1; transform: none; filter: blur(0); }
+}
+
+@keyframes breathe {
+  0%, 100% { opacity: 0.78; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.05); }
+}
+
+@keyframes sway {
+  0%, 100% { transform: translateX(-34px); }
+  50% { transform: translateX(34px); }
+}
+
+@keyframes beam {
+  0%, 100% { opacity: 0.1; transform: translateX(0) skewX(-9deg); }
+  50% { opacity: 0.3; transform: translateX(38px) skewX(-9deg); }
+}
+
+@keyframes driftA {
+  from { transform: translateX(0); }
+  to { transform: translateX(-118px); }
+}
+
+@keyframes driftB {
+  from { transform: translateX(-92px); }
+  to { transform: translateX(0); }
+}
+
+@keyframes dashline {
+  to { stroke-dashoffset: -900; }
+}
+
+@keyframes floatUp {
+  0% { transform: translateY(0) scale(1); opacity: 0; }
+  14% { opacity: 0.55; }
+  78% { opacity: 0.32; }
+  100% { transform: translateY(-92vh) scale(0.6); opacity: 0; }
+}
+
+@keyframes ring {
+  0% { transform: scale(1); opacity: 0.75; }
+  70%, 100% { transform: scale(4.2); opacity: 0; }
+}
+
+@keyframes shimmer {
+  0% { background-position: 190% 0; }
+  100% { background-position: -60% 0; }
+}
+
+@keyframes sheen {
+  0% { transform: translateX(-150%) skewX(-18deg); }
+  58%, 100% { transform: translateX(340%) skewX(-18deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stage *,
+  .stage *::before,
+  .stage *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .particle,
+  .beam {
+    display: none;
+  }
+
+  .shine {
+    background: none;
+    -webkit-text-fill-color: #f4f8f7;
+    color: #f4f8f7;
+  }
+}

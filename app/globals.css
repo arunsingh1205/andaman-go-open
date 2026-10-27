@@ -1,0 +1,370 @@
+@import "tailwindcss";
+
+@theme {
+  --color-ground: #F2F6F5;
+  --color-surface: #FFFFFF;
+  --color-ink: #0B2422;
+  --color-muted: #5C7370;
+  --color-line: #E2EAE8;
+  --color-hairline: #EEF3F2;
+  /* Sampled off the logo lockup rather than picked by eye, so brand chrome
+     and the mark are the same teal. The mark's other ink is GO teal #52A6A8. */
+  --color-brand: #13434C;
+  --color-brandsoft: #E4F0EE;
+  /* A brighter step of the same teal family, for use ON dark brand surfaces
+     (the floating nav bar's active pill) where brandsoft's near-white mint
+     would have no contrast. */
+  --color-brandmint: #7FD1C5;
+  --color-sand: #D9A05B;
+  --color-sandsoft: #FBF1E4;
+  --color-sandline: #EEDCC0;
+  --color-sandink: #6E4210;
+  --color-sandink2: #8A5B22;
+  --color-sandicon: #B0783A;
+  --color-navmuted: #93A8A5;
+  --color-warn: #C2601F;
+
+  --font-display: var(--font-bricolage), system-ui, sans-serif;
+  --font-body: var(--font-jakarta), system-ui, sans-serif;
+
+  /* --- Radius scale --------------------------------------------------------
+     The screens grew ten different corner sizes (10/12/13/14/15/16/18/20/22).
+     These five named steps are what they collapse to; new work uses these and
+     old arbitrary values are migrated as each screen is touched. Names are
+     new, so Tailwind's built-in rounded-xl / rounded-2xl keep meaning what
+     they mean everywhere else (partner, admin). */
+  --radius-control: 12px; /* inputs, small buttons, island pills, icon wells */
+  --radius-button: 16px; /* primary buttons, the search bar, option rows */
+  --radius-card: 18px; /* tiles, list and strip cards */
+  --radius-panel: 20px; /* booking panels, large list cards, popovers */
+  --radius-sheet: 28px; /* bottom sheets on phones, dialogs on desktop */
+
+  /* --- Elevation -------------------------------------------------------------
+     Cards are flat (border, no shadow) at rest. Shadow appears only when
+     something is raised above the page: hovered on desktop, floating, or a
+     panel that overlaps the hero band. Tinted with ink, never pure black. */
+  --shadow-card: 0 2px 16px rgba(11, 36, 34, 0.06);
+  --shadow-raised: 0 6px 24px rgba(11, 36, 34, 0.08);
+  --shadow-float: 0 18px 48px rgba(11, 36, 34, 0.14);
+
+  /* --- Display sizes for desktop ---------------------------------------------
+     Phone headings stay as they are (22 / 27px). These two are the desktop
+     steps above them, used as `text-[27px] lg:text-hero`. */
+  --text-page: 34px;
+  --text-page--line-height: 1.1;
+  --text-page--letter-spacing: -0.025em;
+  --text-hero: 48px;
+  --text-hero--line-height: 1.04;
+  --text-hero--letter-spacing: -0.03em;
+
+  /* iPad portrait: mini 744, Air 820, Pro 11" 834. See "Layout" below. */
+  --breakpoint-tablet: 46.5rem;
+}
+
+/* `desk:` — a real desktop: wide *and* driven by a mouse or trackpad. The
+   partner dashboard keeps its sidebar design for this and gives every touch
+   device, an iPad in either orientation included, the app design instead,
+   which width alone can't tell apart (an iPad in landscape is 1180px). */
+@custom-variant desk (@media (min-width: 1024px) and (hover: hover) and (pointer: fine));
+
+/* --- Layout ---------------------------------------------------------------
+   Three widths:
+     < 744px      phone — one 430px column, bottom tab bar.
+     744–1023px   `tablet:` — iPad portrait. Still the phone layout (bottom
+                  tab bar, sticky Book bar, one reading column), but the
+                  column opens up and tile/card grids gain columns, so an
+                  iPad isn't a phone strip floating in empty ground.
+     ≥ 1024px     `lg:` — one wide well; the top navbar takes over from the
+                  bottom tab bar. iPad landscape lands here.
+
+   `page-well` goes on a screen's <main> (and on anything else that must line
+   up with it, like the navbar's inner row) instead of a hard-coded
+   `mx-auto max-w-[430px] px-5`, so the two widths can never drift apart. */
+:root {
+  --well: 1200px;
+  --gutter: 20px;
+  --gutter-tablet: 32px;
+  --gutter-desktop: 40px;
+  --nav-h: 68px;
+}
+
+@utility page-well {
+  margin-inline: auto;
+  max-width: 430px;
+  padding-inline: var(--gutter);
+
+  @media (min-width: 744px) {
+    max-width: 760px;
+    padding-inline: var(--gutter-tablet);
+  }
+
+  @media (min-width: 1024px) {
+    max-width: var(--well);
+    padding-inline: var(--gutter-desktop);
+  }
+}
+
+/* The same idea for a focused flow — ferry, cab, scooter, trip and stay
+   booking, the day planner, the confirmation. A checkout reads best as one
+   centred column, so from `lg` this stops at 760px instead of opening up to
+   the full well. Header bands and fixed bottom bars on those screens use it
+   too, so their contents line up with the form beneath. */
+@utility page-flow {
+  margin-inline: auto;
+  max-width: 430px;
+  padding-inline: var(--gutter);
+
+  @media (min-width: 744px) {
+    max-width: 640px;
+    padding-inline: var(--gutter-tablet);
+  }
+
+  @media (min-width: 1024px) {
+    max-width: 760px;
+    padding-inline: var(--gutter-desktop);
+  }
+}
+
+/* Press feedback belongs to touch, lift belongs to a pointer. Cards keep their
+   `active:scale-[0.985]` for phones and add `card-hover` for desktop: a 2px
+   rise, the raised shadow and a brand-tinted border, only on a device that can
+   really hover at desktop width, so a tap never leaves a card stuck lifted. */
+@utility card-hover {
+  transition:
+    translate 160ms ease,
+    box-shadow 160ms ease,
+    border-color 160ms ease;
+
+  @media (hover: hover) and (min-width: 1024px) {
+    &:hover {
+      translate: 0 -2px;
+      box-shadow: var(--shadow-raised);
+      border-color: color-mix(in srgb, var(--color-brand) 28%, var(--color-line));
+    }
+  }
+}
+
+@utility focus-ring {
+  &:focus-visible {
+    outline: 2px solid var(--color-brand);
+    outline-offset: 2px;
+  }
+}
+
+html {
+  /* No grey flash when a card or button is tapped — the web default that
+     most gives away that a screen isn't native. */
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  background: var(--color-ground);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  /* Stop the rubber-band overscroll that reveals blank space behind the page. */
+  overscroll-behavior-y: none;
+}
+
+/* Chrome that sits against a screen edge (headers, the tab bar) reads
+   `--safe-top` / `--safe-bottom` so it pads past the notch and home indicator
+   when the native shell runs the app full-bleed (viewport-fit=cover). Falls
+   back to 0 in a normal browser. */
+:root {
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* The site header stays on one light palette regardless of the OS colour
+   scheme — the rest of the app is light-only for now, so a header that
+   switched to the dark teal lockup on a dark-mode phone just left a
+   mismatched dark bar floating over an otherwise light screen. */
+.site-header {
+  --hdr-bg: var(--color-surface);
+  --hdr-line: var(--color-line);
+  --hdr-icon: var(--color-brand);
+}
+
+/* Light-ground lockup only, for the same reason: no dark-mode swap. */
+.logo-on-dark {
+  display: none;
+}
+
+.no-bar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.no-bar::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+/* ---------------------------------------------------------------------------
+   Bottom bar (app/bottom-nav.tsx) — two looks, one DOM
+   ---------------------------------------------------------------------------
+   Default: the full-width slab pinned to the bottom edge that the website has
+   always had. Under :root[data-native] — set by app/native-bridge.tsx once it
+   knows it is running inside the app — it becomes a floating glass capsule.
+
+   The glass is app-only on purpose. On a phone browser the bar sits above the
+   browser's own chrome, so a floating capsule ends up as one rounded thing
+   stacked on another; and Android's older WebViews are patchy on
+   backdrop-filter. In the app it is the only chrome on screen, which is where
+   it earns its keep.
+--------------------------------------------------------------------------- */
+
+.glass-nav {
+  max-width: 430px;
+  padding: 0.625rem 0.75rem max(1.25rem, calc(var(--safe-bottom) + 0.5rem));
+  background: var(--color-surface);
+  border-top: 1px solid var(--color-line);
+}
+
+.glass-nav-item {
+  display: flex;
+  flex: 1 1 0%;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  padding: 0.5rem 0.25rem;
+  border-radius: 22px;
+  transition: color 150ms ease, background-color 150ms ease;
+}
+
+/* ---- in the app only ---------------------------------------------------- */
+
+:root[data-native] .glass-nav {
+  max-width: 420px;
+  margin-inline: max(1rem, env(safe-area-inset-left, 0px));
+  margin-bottom: max(0.75rem, calc(var(--safe-bottom) + 0.25rem));
+  padding: 0.375rem;
+  border-top: 0;
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.72);
+  -webkit-backdrop-filter: blur(22px) saturate(180%);
+  backdrop-filter: blur(22px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.75);
+  box-shadow:
+    /* the lift */
+    0 12px 32px -8px rgba(11, 36, 34, 0.22),
+    0 4px 12px -4px rgba(11, 36, 34, 0.12),
+    /* a hairline of contrast, so the capsule still has an edge on white */
+    0 0 0 0.5px rgba(11, 36, 34, 0.06),
+    /* inner top highlight — this is what reads as glass rather than as grey */
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+:root[data-native] .glass-nav-item {
+  gap: 0.25rem;
+  padding: 0.5rem 0.25rem 0.375rem;
+}
+
+/* The soft pill behind the current tab. Deliberately faint: it marks the tab
+   without competing with the brand-coloured icon sitting on it. Capsule only —
+   on the slab the coloured icon and label are already enough. */
+:root[data-native] .glass-nav-active {
+  background: color-mix(in srgb, var(--color-brand) 10%, transparent);
+}
+
+/* ---- on an iPad ----------------------------------------------------------
+   The web slab spans the whole bottom edge like a native tab bar, with its
+   four tabs held together in the middle rather than stretched 190px apart.
+   In the app the capsule keeps its phone size and simply centres. */
+@media (min-width: 744px) {
+  :root:not([data-native]) .glass-nav {
+    max-width: none;
+    justify-content: center;
+  }
+
+  :root:not([data-native]) .glass-nav-item {
+    flex: 0 1 120px;
+  }
+
+  :root[data-native] .glass-nav {
+    margin-inline: auto;
+  }
+}
+
+/* A translucent bar with no blur is unreadable over a photo, so the fallback
+   raises the opacity instead of merely losing the effect. */
+@supports not ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+  :root[data-native] .glass-nav {
+    background: rgba(255, 255, 255, 0.96);
+  }
+}
+
+/* In the app, the notch is the native layer's job, not CSS's — on iOS.
+   capacitor.config.ts sets ios.contentInset: "always", and on iOS 26+,
+   ios-app/App/App/AppRootViewController.swift pins the WebView's own frame
+   to start below the status bar/notch entirely (not just an inset the
+   WebView is asked to respect — its bounds genuinely don't extend there).
+   Either way, the page's own content is never the one holding back the
+   notch, so a page that padded itself by --safe-top on top of that got
+   real double-reservation (measured: 118pt of it on a 59pt device before
+   this was zeroed), and this is what stops that.
+
+   Three earlier attempts specifically for iOS 26+ tried to make the
+   WebView self-report a correct env(safe-area-inset-top) instead of
+   relying on that native reservation — Capacitor's own
+   contentInsetAdjustmentBehavior, then CSS's own env() as a fallback, then
+   an explicit pixel value pushed in from Swift. None of them held up
+   on-device, which is why the WebView's frame itself now starts below the
+   notch instead: there is nothing left for the page to cooperate with, and
+   so nothing left for CSS to route around.
+
+   --safe-bottom is deliberately *not* zeroed: the WebView does run to the
+   bottom edge of the screen, so the floating tab bar still has to hold
+   itself clear of the home indicator. */
+:root[data-native="ios"] {
+  --safe-top: 0px;
+}
+
+/* Android has no iOS-26-style frame pinning (confirmed during planning;
+   see MainActivity.java's class comment) — @capawesome/capacitor-android-
+   edge-to-edge-support actively keeps the WebView genuinely edge-to-edge,
+   so its own env(safe-area-inset-top) still correctly reports the real
+   status bar height instead, same as it already does for --safe-bottom
+   above. (An earlier version of this rule added another 68px on top, to
+   clear a floating native back button that sat below the status bar — removed
+   along with that button; app/page-back.tsx is what Android uses now, and
+   its own height is already accounted for by the header's normal layout,
+   not by --safe-top.) */
+:root[data-native="android"] {
+  --safe-top: env(safe-area-inset-top, 0px);
+}
+
+/* ---------------------------------------------------------------------------
+   Native chrome — ios-app/App/App/AppRootViewController.swift (iOS 26+) and
+   MainActivity.java (Android, installChromeHideScript()) both set
+   data-native-chrome once their own floating tab bar is actually on screen,
+   hiding the web's equivalent (app/bottom-nav.tsx, .glass-nav) so there is
+   never a duplicate.
+
+   The back element (app/page-back.tsx, data-page-back) only follows suit on
+   iOS. Android had a floating Liquid Glass back button too, mirroring
+   iOS's — real-device testing found it sitting on top of page header
+   content no matter how the reserved-space math was tuned, since Android's
+   WebView (unlike iOS 26+'s) is never frame-shifted below it, so nothing
+   physically keeps a page's own content out from under it. Android now
+   just uses this web element directly instead of hiding it.
+
+   The Home screen's profile icon (data-page-profile, app/explore/page.tsx)
+   is deliberately not in this list either — there used to be a native glass
+   button standing in for it on iOS, removed after it visually doubled up
+   with this one instead of cleanly replacing it (the glass material is
+   translucent, so the web icon underneath showed straight through it).
+   The web icon is what's actually shown now, on every platform, so nothing
+   should ever hide it.
+
+   display: none, not visibility: hidden, so surrounding layout closes the
+   gap rather than a screen holding dead space for a control it isn't
+   drawing.
+--------------------------------------------------------------------------- */
+:root[data-native-chrome] .glass-nav {
+  display: none;
+}
+
+:root[data-native-chrome][data-native="ios"] [data-page-back] {
+  display: none;
+}

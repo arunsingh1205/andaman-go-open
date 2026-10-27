@@ -1,0 +1,164 @@
+# iOS builds for both apps, signed and uploaded to TestFlight.
+#
+# Authentication deliberately uses App Store Connect API credentials held as
+# environment variables rather than Codemagic's named `integrations:` block.
+# That block only exists for Codemagic *teams*, and a team on Codemagic asks
+# for a card before it will start - so this project runs on a personal
+# account, where the documented alternative is the four variables below.
+#
+# Variable group `andaman-go-ios` (Codemagic > Environment variables) must
+# hold, all marked secure:
+#   APP_STORE_CONNECT_ISSUER_ID     your App Store Connect issuer ID
+#   APP_STORE_CONNECT_KEY_IDENTIFIER  the Key ID of the "Codemagic" API key
+#   APP_STORE_CONNECT_PRIVATE_KEY   the whole contents of that key's .p8 file
+#   CERTIFICATE_PRIVATE_KEY         an RSA private key, whole PEM including
+#                                   the BEGIN/END lines. Not from Apple - it
+#                                   is the key `app-store-connect
+#                                   fetch-signing-files --create` uses to
+#                                   mint the iOS distribution certificate on
+#                                   first run, and must stay the same
+#                                   afterwards or every build makes a new
+#                                   certificate (Apple caps you at two).
+#   CUSTOMER_SERVER_URL             https://www.andamango.in/explore?preview=<PREVIEW_KEY>
+#                                   - /explore sits behind the coming-soon
+#                                   gate, so without the key App Review sees
+#                                   nothing. Drop the query string once the
+#                                   site is public.
+#   PARTNER_SERVER_URL              https://www.andamango.in/partner
+#
+# Neither URL is repeated under `vars` any more. They were, as a "fallback",
+# and a workflow-level var shadowing the group value is the likeliest reason
+# the first customer build shipped without its preview key and opened on the
+# coming-soon page. One definition, in the group, and a build that fails
+# loudly if it is missing.
+#
+# Capacitor 8 resolves plugins through Swift Package Manager, so there is no
+# Podfile and no .xcworkspace - both workflows build App.xcodeproj directly.
+
+workflows:
+  partner-ios:
+    name: Partner iOS (App Store)
+    max_build_duration: 60
+    environment:
+      groups:
+        - andaman-go-ios
+      vars:
+        BUNDLE_ID: "com.andamango.partner"
+      node: latest
+      xcode: latest
+    triggering:
+      events:
+        - tag
+      tag_patterns:
+        - pattern: "ios-partner-v*"
+          include: true
+        # Legacy pattern kept so existing tags still build the partner app.
+        - pattern: "ios-v*"
+          include: true
+    scripts:
+      - name: Install dependencies
+        script: npm ci
+      - name: Sync Capacitor iOS project (partner)
+        script: |
+          set -e
+          export CAP_TARGET=partner
+          export CAP_SERVER_URL="$PARTNER_SERVER_URL"
+          if [ -z "$CAP_SERVER_URL" ]; then
+            echo "PARTNER_SERVER_URL is empty - check the andaman-go-ios group"
+            exit 1
+          fi
+          # Redacted so a preview key never lands in the build log.
+          echo "Building against: $(echo "$CAP_SERVER_URL" | sed 's/preview=.*/preview=<set>/')"
+          npx cap sync ios
+      - name: Initialise the build keychain
+        script: keychain initialize
+      - name: Fetch or create signing files
+        script: |
+          app-store-connect fetch-signing-files "$BUNDLE_ID" \
+            --type IOS_APP_STORE \
+            --create
+      - name: Add the certificate to the keychain
+        script: keychain add-certificates
+      - name: Point the Xcode project at the profile
+        script: xcode-project use-profiles
+      - name: Bump build number
+        script: |
+          cd ios/App
+          agvtool new-version -all $(($BUILD_NUMBER + 100))
+      - name: Build ipa for App Store submission
+        script: |
+          xcode-project build-ipa \
+            --project ios/App/App.xcodeproj \
+            --scheme App
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
+    publishing:
+      app_store_connect:
+        api_key: $APP_STORE_CONNECT_PRIVATE_KEY
+        key_id: $APP_STORE_CONNECT_KEY_IDENTIFIER
+        issuer_id: $APP_STORE_CONNECT_ISSUER_ID
+        submit_to_testflight: true
+        submit_to_app_store: false
+
+  customer-ios:
+    name: Customer iOS (App Store)
+    max_build_duration: 60
+    environment:
+      groups:
+        - andaman-go-ios
+      vars:
+        BUNDLE_ID: "com.andamango.app"
+      node: latest
+      xcode: latest
+    triggering:
+      events:
+        - tag
+      tag_patterns:
+        - pattern: "ios-customer-v*"
+          include: true
+    scripts:
+      - name: Install dependencies
+        script: npm ci
+      - name: Sync Capacitor iOS project (customer)
+        script: |
+          set -e
+          export CAP_TARGET=customer
+          export CAP_SERVER_URL="$CUSTOMER_SERVER_URL"
+          if [ -z "$CAP_SERVER_URL" ]; then
+            echo "CUSTOMER_SERVER_URL is empty - check the andaman-go-ios group"
+            exit 1
+          fi
+          # Redacted so the preview key never lands in the build log.
+          echo "Building against: $(echo "$CAP_SERVER_URL" | sed 's/preview=.*/preview=<set>/')"
+          npx cap sync ios
+      - name: Initialise the build keychain
+        script: keychain initialize
+      - name: Fetch or create signing files
+        script: |
+          app-store-connect fetch-signing-files "$BUNDLE_ID" \
+            --type IOS_APP_STORE \
+            --create
+      - name: Add the certificate to the keychain
+        script: keychain add-certificates
+      - name: Point the Xcode project at the profile
+        script: xcode-project use-profiles
+      - name: Bump build number
+        script: |
+          cd ios-app/App
+          agvtool new-version -all $(($BUILD_NUMBER + 100))
+      - name: Build ipa for App Store submission
+        script: |
+          xcode-project build-ipa \
+            --project ios-app/App/App.xcodeproj \
+            --scheme App
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
+    publishing:
+      app_store_connect:
+        api_key: $APP_STORE_CONNECT_PRIVATE_KEY
+        key_id: $APP_STORE_CONNECT_KEY_IDENTIFIER
+        issuer_id: $APP_STORE_CONNECT_ISSUER_ID
+        submit_to_testflight: true
+        submit_to_app_store: false

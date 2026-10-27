@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The floating bottom tab bar — geometry/behavior equivalent of
+     ios-app/App/App/AppRootViewController.swift's GlassTabBar, and the same
+     4 items as app/bottom-nav.tsx (.glass-nav) in the same order. No true
+     Liquid Glass material exists on Android; this is a translucent capsule
+     with real elevation instead, same visual family as .glass-nav's own
+     "no backdrop-filter" fallback. Each item's selected/unselected look
+     (icon tint, label bold-ness, the soft background pill) is set in
+     MainActivity.java's setTabBarState(), not here — this XML only lays
+     out the four slots. -->
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/native_tab_bar_capsule"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@drawable/capsule_pill_bg"
+    android:elevation="8dp"
+    android:orientation="horizontal"
+    android:outlineProvider="background"
+    android:paddingHorizontal="6dp"
+    android:paddingVertical="6dp">
+
+    <LinearLayout
+        android:id="@+id/tab_home"
+        android:layout_width="76dp"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        android:focusable="true"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:paddingVertical="8dp">
+
+        <ImageView
+            android:id="@+id/tab_home_icon"
+            android:layout_width="21dp"
+            android:layout_height="21dp"
+            android:contentDescription="Home"
+            android:src="@drawable/ic_home_24" />
+
+        <TextView
+            android:id="@+id/tab_home_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Home"
+            android:textSize="10.5sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/tab_bookings"
+        android:layout_width="76dp"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        android:focusable="true"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:paddingVertical="8dp">
+
+        <ImageView
+            android:id="@+id/tab_bookings_icon"
+            android:layout_width="21dp"
+            android:layout_height="21dp"
+            android:contentDescription="Bookings"
+            android:src="@drawable/ic_ticket_24" />
+
+        <TextView
+            android:id="@+id/tab_bookings_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Bookings"
+            android:textSize="10.5sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/tab_help"
+        android:layout_width="76dp"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        android:focusable="true"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:paddingVertical="8dp">
+
+        <ImageView
+            android:id="@+id/tab_help_icon"
+            android:layout_width="21dp"
+            android:layout_height="21dp"
+            android:contentDescription="Help"
+            android:src="@drawable/ic_chat_24" />
+
+        <TextView
+            android:id="@+id/tab_help_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Help"
+            android:textSize="10.5sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/tab_profile"
+        android:layout_width="76dp"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        android:focusable="true"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:paddingVertical="8dp">
+
+        <ImageView
+            android:id="@+id/tab_profile_icon"
+            android:layout_width="21dp"
+            android:layout_height="21dp"
+            android:contentDescription="Profile"
+            android:src="@drawable/ic_person_24" />
+
+        <TextView
+            android:id="@+id/tab_profile_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Profile"
+            android:textSize="10.5sp" />
+    </LinearLayout>
+
+</LinearLayout>

@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>CAPACITOR_DEBUG</key>
+	<string>$(CAPACITOR_DEBUG)</string>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>en</string>
+	<key>CFBundleDisplayName</key>
+        <string>Andaman GO</string>
+	<key>CFBundleExecutable</key>
+	<string>$(EXECUTABLE_NAME)</string>
+	<key>CFBundleIdentifier</key>
+	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleName</key>
+	<string>$(PRODUCT_NAME)</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>$(MARKETING_VERSION)</string>
+	<key>CFBundleVersion</key>
+	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<key>LSRequiresIPhoneOS</key>
+	<true/>
+	<key>UIApplicationSceneManifest</key>
+	<dict>
+		<key>UIApplicationSupportsMultipleScenes</key>
+    <false/>
+    <key>UISceneConfigurations</key>
+    <dict>
+      <key>UIWindowSceneSessionRoleApplication</key>
+      <array>
+        <dict>
+            <key>UISceneConfigurationName</key>
+            <string>Default Configuration</string>
+            <key>UISceneDelegateClassName</key>
+            <string>$(PRODUCT_MODULE_NAME).SceneDelegate</string>
+            <key>UISceneStoryboardFile</key>
+            <string>Main</string>
+        </dict>
+      </array>
+    </dict>
+	</dict>
+	<key>UILaunchStoryboardName</key>
+	<string>LaunchScreen</string>
+	<key>UIMainStoryboardFile</key>
+	<string>Main</string>
+	<key>UIRequiredDeviceCapabilities</key>
+	<array>
+		<string>armv7</string>
+	</array>
+	<key>UISupportedInterfaceOrientations</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationLandscapeLeft</string>
+		<string>UIInterfaceOrientationLandscapeRight</string>
+	</array>
+	<key>UISupportedInterfaceOrientations~ipad</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationPortraitUpsideDown</string>
+		<string>UIInterfaceOrientationLandscapeLeft</string>
+		<string>UIInterfaceOrientationLandscapeRight</string>
+	</array>
+	<key>UIViewControllerBasedStatusBarAppearance</key>
+	<true/>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.andamango.app</string>
+			</array>
+		</dict>
+	</array>
+	<key>NSCameraUsageDescription</key>
+	<string>Used to take photos when you add a review or upload a document for a booking.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Used to attach photos from your library to reviews and bookings.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Used to show you what's around you when the app opens, and to drop an exact pickup pin so your cab driver can find you.</string>
+	<!-- The app never actually requests "Always" authorization (only
+	     "When In Use", above) - this key exists purely because Apple's
+	     static scanner (ITMS-90683) flags the binary for referencing the
+	     "Always" authorization API surface regardless of whether the app's
+	     own code calls it, most likely because @capacitor/geolocation links
+	     that surface internally. Same purpose string as the When In Use one
+	     since that's genuinely the only access this app ever asks for. -->
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Used to show you what's around you when the app opens, and to drop an exact pickup pin so your cab driver can find you.</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
+	<!-- Meta App Events (capacitor-plugins/meta-app-events). App ID and
+	     client token come from the Meta developer app (App settings > Basic,
+	     and > Advanced). While either is empty the plugin leaves the SDK off
+	     and asks for no tracking permission. -->
+	<key>FacebookAppID</key>
+	<string>1107642525072379</string>
+	<key>FacebookClientToken</key>
+	<string>095eed9f0598b3949ab9305aa6edc81b</string>
+	<key>FacebookDisplayName</key>
+	<string>Andaman GO</string>
+	<key>FacebookAutoLogAppEventsEnabled</key>
+	<true/>
+	<!-- Off until the person allows tracking; the plugin turns it on then. -->
+	<key>FacebookAdvertiserIDCollectionEnabled</key>
+	<false/>
+	<key>NSUserTrackingUsageDescription</key>
+	<string>Lets us see which of our Facebook and Instagram ads brought you to Andaman GO, so we spend less on ads that don't help travellers find us.</string>
+	<!-- Meta's SKAdNetwork IDs: how an install is credited to a Meta ad
+	     even when the person declines tracking. -->
+	<key>SKAdNetworkItems</key>
+	<array>
+		<dict>
+			<key>SKAdNetworkIdentifier</key>
+			<string>v9wttpbfk9.skadnetwork</string>
+		</dict>
+		<dict>
+			<key>SKAdNetworkIdentifier</key>
+			<string>n38lu8286q.skadnetwork</string>
+		</dict>
+	</array>
+	<!-- Razorpay's native checkout decides which UPI buttons to show by
+	     asking iOS whether each app is installed (canOpenURL). iOS answers
+	     "no" for any scheme not listed here, whatever is actually on the
+	     phone - so without this the sheet offers no UPI apps at all and
+	     falls back to asking for a typed UPI ID, which is the thing we
+	     replaced the web modal to avoid. -->
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>tez</string>
+		<string>gpay</string>
+		<string>phonepe</string>
+		<string>paytmmp</string>
+		<string>paytm</string>
+		<string>bhim</string>
+		<string>credpay</string>
+		<string>upi</string>
+	</array>
+</dict>
+</plist>

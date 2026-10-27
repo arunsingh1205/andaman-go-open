@@ -1,0 +1,13 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Andaman GO</string>
+    <string name="title_activity_main">Andaman GO</string>
+    <string name="package_name">com.andamango.app</string>
+    <string name="custom_url_scheme">com.andamango.app</string>
+    <!-- Meta App Events (capacitor-plugins/meta-app-events). From the Meta
+         developer app: App settings > Basic (App ID) and > Advanced (Client
+         token). While empty, the SDK stays off and the app keeps using the
+         web pixel's events — nothing breaks, Meta just gets no app events. -->
+    <string name="facebook_app_id" translatable="false">1107642525072379</string>
+    <string name="facebook_client_token" translatable="false">095eed9f0598b3949ab9305aa6edc81b</string>
+</resources>

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Overrides node_modules/@capacitor/android's own layout of the same
+     filename (Android resource merging resolves an app module's res/layout
+     file over a library's by matching filename — this app module's copy
+     wins). The WebView itself is untouched (match_parent) and stays
+     genuinely edge-to-edge, since @capawesome/capacitor-android-edge-to-edge-support
+     actively enforces that. One floating overlay view sits on top of it,
+     the same way the CSS .glass-nav already floats over page content today.
+
+     There used to be a floating native back button here too, mirroring
+     ios-app/App/App/AppRootViewController.swift's Liquid Glass one — pulled
+     after real-device testing found it covering page header content no
+     matter how the reserved-space math was tuned (a translucent circle
+     over a title reads as a bug, not glass, without iOS's frame-pinning to
+     keep it off the WebView's content entirely). Android now uses the
+     web's own back element instead (app/page-back.tsx, [data-page-back]) -
+     app/globals.css only hides that element for iOS.
+
+     MainActivity finds native_tab_bar_capsule by id at runtime, applies
+     window-inset margins to keep it clear of the gesture nav strip, and
+     shows/hides + positions it based on what NativeChromePlugin.setState()
+     is told by app/native-bridge.tsx. -->
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <com.getcapacitor.CapacitorWebView
+        android:id="@+id/webview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <!-- No android:id on this <include> tag on purpose: setting one would
+         override the id declared on the included layout's own root view
+         (native_tab_bar's root IS the capsule — there's no separate
+         wrapper), which would make R.id.native_tab_bar_capsule stop
+         resolving to it. layout_width/height/gravity/margin/visibility
+         here do apply to and override that root view's own params, which is
+         exactly what's wanted. -->
+    <include
+        layout="@layout/native_tab_bar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center_horizontal"
+        android:layout_marginBottom="16dp"
+        android:visibility="gone" />
+
+</FrameLayout>
